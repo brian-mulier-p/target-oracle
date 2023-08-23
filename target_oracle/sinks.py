@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import sys
+import oracledb
+oracledb.version = "8.3.0"
+sys.modules["cx_Oracle"] = oracledb
+
 from singer_sdk.sinks import SQLSink
 from singer_sdk.connectors import SQLConnector
 from singer_sdk.helpers._conformers import replace_leading_digit
@@ -36,9 +41,9 @@ class OracleConnector(SQLConnector):
             return config["sqlalchemy_url"]
 
         connection_url = sqlalchemy.engine.url.URL.create(
-            drivername="oracle+cx_oracle",
+            drivername=config.get("driver_name", "oracle+cx_oracle"),
             username=config["user"],
-            password=config["password"],
+            password=str(config["password"]),
             host=config["host"],
             port=config["port"],
             database=config["database"],
